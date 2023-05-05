@@ -196,7 +196,7 @@ split: # sequence numbers
     # - 9
     # - 10
 
-    -8
+    - 8
   valid:
     - 8
   test:
