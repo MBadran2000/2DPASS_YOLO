@@ -266,7 +266,7 @@ class Darknet(nn.Module):
         self.header_info = np.array([0, 0, 0, self.seen, 0])
         self.loss_names = ["x", "y", "w", "h", "conf", "cls", "recall", "precision"]
 
-    def forward(self, x, targets=None):
+    def forward(self, x, targets=None,data_dict):
         is_training = targets is not None
         output = []
         self.losses = defaultdict(float)
