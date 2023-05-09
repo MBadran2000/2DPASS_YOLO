@@ -162,7 +162,7 @@ class get_model(LightningBaseModel):
                 config=config
             )
 
-            print("y"*100)
+            # print("y"*100)
 
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.fusion = xModalKD(config)
@@ -180,9 +180,17 @@ class get_model(LightningBaseModel):
 
         # training with 2D network
         if self.training and not self.baseline_only:
-            print("z"*100)
-            print(self.yolo(data_dict))
-            data_dict = self.model_2d(data_dict)
+            # print("z"*100)
+            data_dict = self.yolo(data_dict)
+            # i=2
+            # for x in range(4):
+            #   print(data_dict[f"img_scale{i}"].size())
+            #   i = i*2
+            # data_dict = self.model_2d(data_dict)
+            # i=2
+            # for x in range(4):
+            #   print(data_dict[f"img_scale{i}"].size())
+            #   i = i*2
             data_dict = self.fusion(data_dict)
-
+            # x=10/0
         return data_dict

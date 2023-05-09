@@ -143,15 +143,11 @@ class YOLOLayer(nn.Module):
 
     def forward(self, x, targets=None):
 
-        print("n"*100)
-        print(x.size())
 
         nA = self.num_anchors
         nB = x.size(0)
         nG = x.size(2)
         stride = self.image_dim / nG
-
-        print(self.image_dim)
 
         # Tensors for cuda support
         FloatTensor = torch.cuda.FloatTensor if x.is_cuda else torch.FloatTensor
@@ -408,8 +404,8 @@ class Darknet_2DPass(nn.Module):
         x = F.interpolate(x, size=(480, 480), mode='bilinear', align_corners=False)
 
 
-        print("m"*100)
-        print(x.shape)
+        # print("m"*100)
+        # print(x.shape)
 
         h, w = x.shape[2], x.shape[3]
         if h % 16 != 0 or w % 16 != 0:
@@ -437,16 +433,45 @@ class Darknet_2DPass(nn.Module):
                         self.losses[name] += loss
                 # Test phase: Get detections
                 else:
-                    print("here")
-                    print(type(x))
-                    print(x.size())
+                    # print("here")
+                    # print(type(x))
+                    # print(x.size())
                     x = module(x)
                 output.append(x)
             layer_outputs.append(x)
 
-        self.losses["recall"] /= 3
-        self.losses["precision"] /= 3
-        return sum(output) if is_training else torch.cat(output, 1)
+        # print(len(layer_outputs))
+        # for i in range(10):
+        #   print(layer_outputs[i].size())
+        # # print("xxxxxxxxxxxxxxx")
+        n1=F.interpolate(layer_outputs[1], size=(480, 480), mode='bilinear', align_corners=False)
+        n2=F.interpolate(layer_outputs[3], size=(480, 480), mode='bilinear', align_corners=False)
+        n3=F.interpolate(layer_outputs[4], size=(480, 480), mode='bilinear', align_corners=False)
+        n4=F.interpolate(layer_outputs[6], size=(480, 480), mode='bilinear', align_corners=False)
+        data_dict['img_scale2'] = n1
+        data_dict['img_scale4'] = n2
+        data_dict['img_scale8'] = n3
+        data_dict['img_scale16'] = n4
+
+        process_keys = [k for k in data_dict.keys() if k.find('img_scale') != -1]
+        img_indices = data_dict['img_indices']
+
+        temp = {k: [] for k in process_keys}
+
+        for i in range(x.shape[0]):
+            for k in process_keys:
+                # print(data_dict[k].size())
+                # print(img_indices[i][:, 0], img_indices[i][:, 1])
+                temp[k].append(data_dict[k].permute(0, 2, 3, 1)[i][img_indices[i][:, 0], img_indices[i][:, 1]])
+
+        for k in process_keys:
+            data_dict[k] = torch.cat(temp[k], 0)
+
+        return data_dict
+
+        # self.losses["recall"] /= 3
+        # self.losses["precision"] /= 3
+        # return sum(output) if is_training else torch.cat(output, 1)
 
     def load_weights(self, weights_path, cutoff = -1):
         """Parses and loads the weights stored in 'weights_path'"""
