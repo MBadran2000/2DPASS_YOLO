@@ -9,6 +9,11 @@ from network.baseline import get_model as SPVCNN
 from network.base_model import LightningBaseModel
 from network.basic_block import ResNetFCN
 
+
+import sys
+sys.path.append('/content/2DPASS_YOLO/2d-object-detection/src')
+from model import Darknet_2DPass as Darknet
+
 class xModalKD(nn.Module):
     def __init__(self,config):
         super(xModalKD, self).__init__()
@@ -156,9 +161,18 @@ class get_model(LightningBaseModel):
                 pretrained=config.model_params.pretrained2d,
                 config=config
             )
+
+            print("y"*100)
+
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.fusion = xModalKD(config)
+            self.yolo = Darknet('/content/2DPASS_YOLO/2d-object-detection/config/yolov3-kitti.cfg')
+            self.yolo.load_weights('/content/drive/MyDrive/kitti_2d/best_weights_kitti.pth')
+            self.to(device)
+
         else:
             print('Start vanilla training!')
+          
 
     def forward(self, data_dict):
         # 3D network
@@ -166,6 +180,8 @@ class get_model(LightningBaseModel):
 
         # training with 2D network
         if self.training and not self.baseline_only:
+            print("z"*100)
+            print(self.yolo(data_dict))
             data_dict = self.model_2d(data_dict)
             data_dict = self.fusion(data_dict)
 
