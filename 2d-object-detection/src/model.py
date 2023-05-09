@@ -404,7 +404,9 @@ class Darknet_2DPass(nn.Module):
         x = data_dict['img']
                 
                 
-        x = x[:,:,:,:320]
+        # x = x[:,:,:,:320]
+        x = F.interpolate(x, size=(480, 480), mode='bilinear', align_corners=False)
+
 
         print("m"*100)
         print(x.shape)
