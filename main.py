@@ -39,6 +39,7 @@ def load_yaml(file_name):
 
 def parse_config():
     parser = ArgumentParser()
+    print("#"*100)
     # general
     parser.add_argument('--gpu', type=int, nargs='+', default=(0,), help='specify gpu devices')
     parser.add_argument("--seed", default=0, type=int)
@@ -53,13 +54,13 @@ def parse_config():
     parser.add_argument('--baseline_only', action='store_true', default=False, help='training without 2D')
     # testing
     parser.add_argument('--test', action='store_true', default=False, help='test mode')
-    parser.add_argument('--fine_tune', action='store_true', default=False, help='fine tune mode')
-    parser.add_argument('--pretrain2d', action='store_true', default=False, help='use pre-trained 2d network')
+    parser.add_argument('--fine_tune', action='store_true', default=True, help='fine tune mode')
+    parser.add_argument('--pretrain2d', action='store_true', default=True, help='use pre-trained 2d network')
     parser.add_argument('--num_vote', type=int, default=1, help='number of voting in the test')
     parser.add_argument('--submit_to_server', action='store_true', default=False, help='submit on benchmark')
-    parser.add_argument('--checkpoint', type=str, default=None, help='load checkpoint')
+    parser.add_argument('--checkpoint', type=str, default='/content/drive/MyDrive/Graduation_Project/sementic_segmentation/best_model.ckpt', help='load checkpoint')
     # debug
-    parser.add_argument('--debug', default=False, action='store_true')
+    parser.add_argument('--debug', default=None, action='store_true')
 
     args = parser.parse_args()
     config = load_yaml(args.config_path)
@@ -178,6 +179,8 @@ if __name__ == '__main__':
     if configs.checkpoint is not None:
         print('load pre-trained model...')
         if configs.fine_tune or configs.test or configs.pretrain2d:
+            print("*"*100)
+            print(configs.checkpoint)
             my_model = my_model.load_from_checkpoint(configs.checkpoint, config=configs, strict=(not configs.pretrain2d))
         else:
             # continue last training
