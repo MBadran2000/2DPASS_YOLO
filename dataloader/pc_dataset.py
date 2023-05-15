@@ -9,6 +9,8 @@ from nuscenes.utils import splits
 
 REGISTERED_PC_DATASET_CLASSES = {}
 
+import os.path
+import random
 
 def register_dataset(cls, name=None):
     global REGISTERED_PC_DATASET_CLASSES
@@ -122,7 +124,12 @@ class SemanticKITTI(data.Dataset):
                 annotated_data[annotated_data == -1] = self.config['dataset_params']['ignore_label']
 
         image_file = self.im_idx[index].replace('velodyne', 'image_2').replace('.bin', '.png')
+        while(not os.path.isfile(image_file)):
+          list1 = list(image_file)
+          list1[-5] = str(random.randint(1, 9))
+          image_file = ''.join(list1)
         image = Image.open(image_file)
+        
         proj_matrix = self.proj_matrix[int(self.im_idx[index][-22:-20])]
 
         data_dict = {}
