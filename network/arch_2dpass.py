@@ -7,7 +7,7 @@ import torch.nn.functional as F
 from network.basic_block import Lovasz_loss
 from network.baseline import get_model as SPVCNN
 from network.base_model import LightningBaseModel
-from network.basic_block import ResNetFCN
+from network.basic_block import ResNextFCN
 
 
 import sys
@@ -156,11 +156,11 @@ class get_model(LightningBaseModel):
 
         self.model_3d = SPVCNN(config)
         if not self.baseline_only:
-            self.model_2d = ResNetFCN(
-                backbone=config.model_params.backbone_2d,
-                pretrained=config.model_params.pretrained2d,
-                config=config
-            )
+            # self.model_2dx = ResNextFCN(
+            #     backbone=config.model_params.backbone_2d,
+            #     pretrained=config.model_params.pretrained2d,
+            #     config=config
+            # )
 
             # print("y"*100)
 
@@ -181,6 +181,7 @@ class get_model(LightningBaseModel):
         # training with 2D network
         if self.training and not self.baseline_only:
             # print("z"*100)
+            # data_dict = self.model_2dx(data_dict)
             data_dict = self.yolo(data_dict)
             # i=2
             # for x in range(4):
