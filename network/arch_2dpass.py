@@ -168,7 +168,7 @@ class get_model(LightningBaseModel):
             self.fusion = xModalKD(config)
             self.yolo = Darknet('/content/2DPASS_YOLO/2d-object-detection/config/yolov3-kitti.cfg')
             self.yolo.load_weights('/content/drive/MyDrive/kitti_2d/best_weights_kitti.pth')
-            self.to(device)
+            self.yolo.to(device)
 
         else:
             print('Start vanilla training!')
